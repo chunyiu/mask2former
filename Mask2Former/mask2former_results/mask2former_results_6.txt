@@ -1,0 +1,5 @@
+-----RESULTS-----
+Mean IoU: 0.6303
+Category Dice Coefficient: 0.9945
+Attributes Dice Coefficient: 0.5983
+-----------------
