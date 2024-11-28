@@ -1,7 +1,7 @@
 # The Future of Fashion Retail: Deploying Computer Vision for Enhanced Swapaholic Operations
 
 ## Introduction
-<img width="752" alt="image" src="https://github.com/user-attachments/assets/4bdb4054-dfbc-484a-a545-1871d9595b53">
+<div align="center"><img width="752" alt="image" src="https://github.com/user-attachments/assets/4bdb4054-dfbc-484a-a545-1871d9595b53"></div>
 
 *<div align="center">Figure 1: Current Swapaholic UI</div>*
 
@@ -36,6 +36,10 @@ The csv file has 4 columns:
 
 ## Mask2Former Model Architecture
 ### Description
+<div align="center"><img width="615" alt="image" src="https://github.com/user-attachments/assets/60db9e70-c7b7-4552-9be2-2d10c3f37b46"></div>
+
+*<div align="center">Figure 2: Mask2Former Architecture</div>*
+
 Mask2Former is a unified framework for segmentation tasks, including instance, semantic, and panoptic segmentation. It leverages a transformer-based architecture to predict segmentation masks directly, using attention mechanisms to model pixel-to-object relationships.
 
 ### Data Pre-processing
@@ -45,14 +49,14 @@ The data preprocessing pipeline implements a FashionpediaDataset class, featurin
 The loss functions implementation presents a multi-task learning framework that employs uncertainty-based task weighting for simultaneous multi-class category classification, multi-label attribute prediction, and instance segmentation. The architecture utilises learnable uncertainty parameters through the UncertaintyWeights module, which dynamically balances the relative importance of each task by learning log variances that are converted to precision weights. The loss computation incorporates Hungarian matching to optimise:
 
 1. Jaccard Loss (1 - mIoU) for mask predictions
-<img width="682" alt="image" src="https://github.com/user-attachments/assets/d326e9c4-1c6a-4fa4-953b-c18176761c7f">
+<div align="center"><img width="682" alt="image" src="https://github.com/user-attachments/assets/d326e9c4-1c6a-4fa4-953b-c18176761c7f"></div>
 
 2. Cross-entropy loss for category predictions
 3. Binary cross-entropy loss for attribute set predictions
 
 The Hungarian matching algorithm is employed to optimise the assignment between predictions and ground truth values, minimising the total loss:
 
-<img width="659" alt="image" src="https://github.com/user-attachments/assets/413c5997-9a08-4656-842e-97f0154607ad">
+<div align="center"><img width="659" alt="image" src="https://github.com/user-attachments/assets/413c5997-9a08-4656-842e-97f0154607ad"></div>
 
 The final loss function combines these task-specific losses using the learned uncertainty weights, with an added regularisation term to prevent the model from trivially minimising losses by increasing uncertainties. This approach allows the model to automatically adapt the contribution of each task to the total loss based on their relative difficulties and uncertainties, potentially leading to more balanced and effective multi-task learning.
 
@@ -62,7 +66,8 @@ We implemented a custom extension of Mask2Former for the Fashionpedia dataset by
 ### Training
 
 ![image](https://github.com/user-attachments/assets/27ffd6ea-1242-4cdd-b1b2-6da8cc84ce52)
-*<div align="center">Figure 2: Training vs Validation Loss for Mask2Former</div>*
+
+*<div align="center">Figure 3: Training vs Validation Loss for Mask2Former</div>*
 
 The training pipeline implements the CustomMask2FormerForFashionpedia model that leverages the Hungarian algorithm for optimal bipartite matching between predicted and ground truth masks, ensuring efficient assignment of segment predictions to target labels. Using an AdamW optimizer with a conservative learning rate of 1e-5 for stable convergence, the pipeline incorporates checkpointing and memory optimization features. It employs gradient accumulation for efficient batch processing and includes comprehensive memory management through systematic garbage collection and CUDA cache clearing. The pipeline loads model weights from previous checkpoints when available and processes training data in batches, computing losses for both categorical and attribute predictions across pixel-level masks, with the Hungarian matching algorithm minimising pairwise losses between predictions and ground truth. During each epoch, the model alternates between training and validation phases, tracking respective losses while maintaining memory efficiency. The system automatically saves model states, optimizer configurations, and loss metrics at designated checkpoints, enabling training continuity and performance monitoring. Additionally, the pipeline includes visualisation capabilities for tracking training and validation loss curves over time, facilitating model performance analysis across training epochs.
 
@@ -77,9 +82,9 @@ The attribute and category Dice calculations account for variable numbers of pre
 
 ### Visualisation
 
-<img width="1458" alt="image" src="https://github.com/user-attachments/assets/995c56f1-75de-449a-b5a4-70800741eb40">
+<div align="center"><img width="1458" alt="image" src="https://github.com/user-attachments/assets/995c56f1-75de-449a-b5a4-70800741eb40"></div>
 
-*<div align="center">Figure 3: Sample Segmentation for Mask2Former</div>*
+*<div align="center">Figure 4: Sample Segmentation for Mask2Former</div>*
 
 The visualisation pipeline implements an instance segmentation workflow that processes images through the CustomMask2FormerForFashionpedia model, incorporating both category classification and attribute set prediction. The system first generates mask predictions with confidence scores, which are then refined through non-maximum suppression (NMS) to eliminate overlapping detections using an IoU threshold of 0.5. The pipeline processes the top-k predictions (initially 100, filtered to 15 after NMS) and interpolates the mask logits to match the original image dimensions. For each detected instance, the pipeline predicts both category labels and multiple attributes using softmax and sigmoid activations respectively. The final visualisation component overlays the predicted masks on the original image using distinct colours, accompanied by a legend displaying the predicted categories and up to five attributes per instance.
 
@@ -92,12 +97,10 @@ For our user testing, we employed Maze.co and two Figma mockups to assess the us
 Participants were tasked to successfully navigate the uploading of a clothing image for listing twice; once using Listing A and once using Listing B. Out of the initial 52 participants, 25 (48%) fully completed all tasks. Outliers—such as those who spent over 685.84 seconds on the second listing or skipped tasks—were excluded from the analysis to focus on genuine user interaction data.
 The findings showed a slight preference for the automated Listing B over the original Listing A.
 
-<img width="1099" alt="image" src="https://github.com/user-attachments/assets/f37738d5-d59f-4ed5-86f9-c8e6b8ce38ac">
+<div align="center"><img width="1099" alt="image" src="https://github.com/user-attachments/assets/f37738d5-d59f-4ed5-86f9-c8e6b8ce38ac"></div>
 
-*<div align="center">Figure 4: Listing Method Survery Results</div>*
+*<div align="center">Figure 5: Listing Method Survery Results</div>*
 
 Using a 5-point scale of preference (where Listing A = 1 and Listing B = 5), we calculated a mean preference of 3.81, with both mode and median at 4. This shows a generally favourable response to Listing B. The automated Listing B also demonstrated efficiency gains, with a lower average completion time of 64 seconds compared to Listing A’s 109 seconds. Listing B also had a narrower spread in task completion times (standard deviation of 19.96 seconds versus Listing A's 33.54 seconds), suggesting a more consistent user experience.
 
 Taken together, these results highlight several potential benefits of automated features in Listing B. The automation appears to streamline the process, reducing both completion time and variability, making it more convenient and user-friendly. The automated features in Listing B likely reduce cognitive load by minimising manual steps and decision points, allowing users to complete listings faster and with less effort. The lower standard deviation for Listing B’s completion times can also be attributed to the automated steps helping users encounter fewer unexpected interactions, resulting in smoother, more consistent experiences across participants.
-
-##
